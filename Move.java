@@ -9,8 +9,8 @@ public class Move {
     int startCol;
     int endRow;
     int endCol;
-    String pieceMoved;
-    String capturedPiece;
+    byte pieceMoved;
+    byte capturedPiece;
     int capturedPieceRow;
     int capturedPieceCol;
     boolean isPawnPromotion;
@@ -18,19 +18,19 @@ public class Move {
     int moveId;
 
 
-    public Move(int startRow, int startCol, int endRow, int endCol, String[][] board, boolean isWhite){
-        this(startRow, startCol, endRow, endCol, board, isWhite, "--", -1, -1);
+    public Move(int startRow, int startCol, int endRow, int endCol, byte[][] board, boolean isWhite){
+        this(startRow, startCol, endRow, endCol, board, isWhite, (byte) 0, -1, -1);
     }
 
-    public Move(int startRow, int startCol, int endRow, int endCol, String[][] board, boolean isWhite, String capturedPiece, int capturedPieceRow, int capturedPieceCol){
+    public Move(int startRow, int startCol, int endRow, int endCol, byte[][] board, boolean isWhite, byte capturedPiece, int capturedPieceRow, int capturedPieceCol){
         this.startRow = startRow;
         this.startCol = startCol;
         this.endRow = endRow;
         this.endCol = endCol;
         this.isWhite = isWhite;
         this.pieceMoved = board[startRow][startCol];
-        this.isPawnPromotion = this.pieceMoved.equals("wm") && this.endRow == 0 ||
-                this.pieceMoved.equals("bm") && this.endRow == 9;
+        this.isPawnPromotion = this.pieceMoved==1 && this.endRow == 0 ||
+                this.pieceMoved==-1 && this.endRow == 9;
         this.capturedPiece = capturedPiece;
         this.capturedPieceCol = capturedPieceCol;
         this.capturedPieceRow = capturedPieceRow;
@@ -40,7 +40,7 @@ public class Move {
     }
 
     public String getCheckersRowColNotation(){
-        String sign = this.capturedPiece != "--" ? "x" : "-" ;
+        String sign = this.capturedPiece != 0 ? "x" : "-" ;
         return startRow + startCol + sign + endRow + endCol;
     }
 

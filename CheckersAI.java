@@ -27,6 +27,8 @@ public class CheckersAI {
         nextMoveOrCapturingMove=null;
 
 
+
+
         currentTime=System.currentTimeMillis();
 
         findMoveMinMaxAlphaBetaImproved(gs, depth, -255, 255);
@@ -130,22 +132,23 @@ public class CheckersAI {
     }
 
 
-    int scoreMaterial(String[][] board){
+    int scoreMaterial(byte[][] board){
         int score = 0;
-        for (String[] row : board){
-            for(String square : row){
-                if (square.equals("wm")){
-                    score+=1;
-                }
-                else if (square.equals("wk")){
-                    score+=3;
-                }
-                else if (square.equals("bm")){
-                    score-=1;
-                }
-                else if (square.equals("bk")){
-                    score-=3;
-                }
+        for (byte[] row : board){
+            for(byte square : row){
+                score += square;
+//                if (square.equals("wm")){
+//                    score+=1;
+//                }
+//                else if (square.equals("wk")){
+//                    score+=3;
+//                }
+//                else if (square.equals("bm")){
+//                    score-=1;
+//                }
+//                else if (square.equals("bk")){
+//                    score-=3;
+//                }
             }
         }
         return score;

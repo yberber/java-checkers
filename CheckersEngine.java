@@ -17,23 +17,23 @@ public class CheckersEngine {
         }
     }
 
-    public static int[][] getMoveDirections(String pieceSign){
-        if (pieceSign.charAt(1) == 'm'){
-            if (pieceSign.charAt(0) == 'w'){
+    public static int[][] getMoveDirections(byte pieceSign){
+        if (Math.abs(pieceSign) == 1){
+            if (pieceSign>0){
                 return new int [][]{{-1, -1},{-1, 1}};
             }
-            else if (pieceSign.charAt(0) == 'b'){
+            else
                 return new int [][]{{1, -1},{1, 1}};
             }
-            else{
-                return new int [][]{{}};
-            }
-        }
-        else if(pieceSign.charAt(1) == 'k'){
-            return new int [][]{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
-        }
+//            else{
+//                return new int [][]{{}};
+//            }
+//        }
+//        else if(Math.abs(pieceSign) == 2){
+//            return new int [][]{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
+//        }
         else{
-            return new int [][]{{}};
+            return new int [][]{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
         }
     }
 
