@@ -46,17 +46,17 @@ public class CheckersEngine {
         return row >= 0 && row < 10 && col >= 0 && col < 10;
     }
 
-    public static void addInMovesWithCaptures(boolean anyFound, LinkedList<Move> foundCaptureList, LinkedList<LinkedList<Move>> movesWithCaptures){
+    public static void addInMovesWithCaptures(boolean anyFound, LinkedList<Move> foundCaptureList, LinkedList<Move[]> movesWithCaptures){
         if(!anyFound && foundCaptureList.size() > 0){
             if(movesWithCaptures.size() == 0){
-                movesWithCaptures.add((LinkedList<Move>) foundCaptureList.clone());
+                movesWithCaptures.add(foundCaptureList.toArray(new Move[foundCaptureList.size()]).clone());
             }
-            else if (movesWithCaptures.getFirst().size() < foundCaptureList.size()){
+            else if (movesWithCaptures.getFirst().length < foundCaptureList.size()){
                 movesWithCaptures.clear();
-                movesWithCaptures.add((LinkedList<Move>) foundCaptureList.clone());
+                movesWithCaptures.add(foundCaptureList.toArray(new Move[foundCaptureList.size()]).clone());
             }
-            else if (movesWithCaptures.getFirst().size() == foundCaptureList.size()){
-                movesWithCaptures.add((LinkedList<Move>) foundCaptureList.clone());
+            else if (movesWithCaptures.getFirst().length == foundCaptureList.size()){
+                movesWithCaptures.add(foundCaptureList.toArray(new Move[foundCaptureList.size()]).clone());
             }
         }
 

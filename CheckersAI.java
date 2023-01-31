@@ -3,8 +3,10 @@ import java.util.LinkedList;
 public class CheckersAI {
 
 
-    Move nextMove;
-    LinkedList<Move> nextCapture;
+//    Move[] nextMove;
+//    Move[] nextCapture;
+
+    Move[] nextMoveOrCapturingMove;
 
     int DEPTH;
     int counter;
@@ -16,14 +18,14 @@ public class CheckersAI {
 
 
 
-    Move findBestMoveMinMax(GameState gs, int depth){
+    Move[] findBestMoveMinMax(GameState gs, int depth){
         isWhite = gs.whiteToMove;
         moveCounter+=1;
         counter=0;
         score=0;
         DEPTH=depth;
-        nextMove=null;
-        nextCapture=null;
+        nextMoveOrCapturingMove=null;
+
 
         currentTime=System.currentTimeMillis();
 
@@ -34,20 +36,24 @@ public class CheckersAI {
                 (System.currentTimeMillis() - this.startTime)/1000.0 + ", total generated move count: " + moveCounter);
 
 
-        return nextMove;
+        return nextMoveOrCapturingMove;
 
     }
 
-    private int findMoveMinMaxAlphaBetaImproved(GameState gs, int depth, int alpha, int beta) {
 
-        boolean isCapturing;
-        LinkedList<LinkedList<Move>> possibleCapturesExtended = new LinkedList<>();
-        LinkedList<Move> possibleMoveExtended = new LinkedList<>();
+//    Move[] findBestMoveMinMaxAndPerform(GameState gs, int depth){
+//
+//    }
+
+
+        private int findMoveMinMaxAlphaBetaImproved(GameState gs, int depth, int alpha, int beta) {
+
+        LinkedList<Move[]> possibleMovesCapturesExtended;
+
         if(depth==0){
             counter++;
-            possibleCapturesExtended = gs.getAllPossibleCaptures();
-            if (possibleCapturesExtended.size() > 0){
-                isCapturing=true;
+            possibleMovesCapturesExtended = gs.getAllPossibleCaptures();
+            if (possibleMovesCapturesExtended.size() > 0){
                 depth++;
             }
             else{
@@ -60,111 +66,66 @@ public class CheckersAI {
             }
         }
         else{
-            possibleCapturesExtended = gs.getAllPossibleCaptures();
-            possibleMoveExtended = gs.getAllPossibleMoves();
-            if(possibleCapturesExtended.size() == 0 && possibleMoveExtended.size() == 0){
-                counter++;
-                return gs.whiteToMove ? -100 : 100;
-            }
-
-            if(possibleCapturesExtended.size() > 0){
-                isCapturing=true;
-            }else{
-                isCapturing=false;
+            possibleMovesCapturesExtended = gs.getAllPossibleCaptures();
+            if(possibleMovesCapturesExtended.isEmpty()){
+                possibleMovesCapturesExtended = gs.getAllPossibleMoves();
+                if(possibleMovesCapturesExtended.isEmpty()){
+                    counter++;
+                    return gs.whiteToMove ? -100 : 100;
+                }
             }
         }
 
         if (depth==DEPTH){
-            if(isCapturing && possibleCapturesExtended.size() == 1){
+            if(possibleMovesCapturesExtended.size() == 1){
                 counter++;
-                nextCapture=possibleCapturesExtended.get(0);
+                nextMoveOrCapturingMove=possibleMovesCapturesExtended.get(0);
                 return 0;
             }
         }
 
-        if (gs.whiteToMove){
+        if (gs.whiteToMove) {
             int maxScore = -255;
-            if(isCapturing){
-                for(LinkedList<Move> capturingMove : possibleCapturesExtended) {
-                    gs.makeMoveExtended(capturingMove);
-                    score = findMoveMinMaxAlphaBetaImproved(gs, depth - 1, alpha, beta);
-                    if (score > maxScore) {
-                        maxScore = score;
-                        alpha = Math.max(alpha, maxScore);
-                        if (alpha >= beta) {
-                            gs.undoMove();
-                            break;
-                        }
-                        if (depth == DEPTH) {
-                            nextCapture = capturingMove;
-                        }
+            for (Move[] moveOrCapturingMove : possibleMovesCapturesExtended) {
+                gs.makeMoveExtended(moveOrCapturingMove);
+                score = findMoveMinMaxAlphaBetaImproved(gs, depth - 1, alpha, beta);
+                if (score > maxScore) {
+                    maxScore = score;
+                    alpha = Math.max(alpha, maxScore);
+                    if (alpha >= beta) {
+                        gs.undoMove();
+                        break;
                     }
-                    gs.undoMove();
-                }
-                return  maxScore;
-            }
-            else{
-                for(Move singleMove : possibleMoveExtended) {
-                    gs.makeMoveExtended(singleMove);
-                    score = findMoveMinMaxAlphaBetaImproved(gs, depth - 1, alpha, beta);
-                    if (score > maxScore) {
-                        maxScore = score;
-                        alpha = Math.max(alpha, maxScore);
-                        if (alpha >= beta) {
-                            gs.undoMove();
-                            break;
-                        }
-                        if (depth == DEPTH) {
-                            nextMove = singleMove;
-                        }
+                    if (depth == DEPTH) {
+                        nextMoveOrCapturingMove = moveOrCapturingMove;
                     }
-                    gs.undoMove();
                 }
-                return  maxScore;
+                gs.undoMove();
             }
+            return maxScore;
         }
 
 
         else{
             int minScore = 255;
-            if(isCapturing){
-                for(LinkedList<Move> capturingMove : possibleCapturesExtended) {
-                    gs.makeMoveExtended(capturingMove);
-                    score = findMoveMinMaxAlphaBetaImproved(gs, depth - 1, alpha, beta);
-                    if (score < minScore) {
-                        minScore = score;
-                        beta = Math.min(beta, minScore);
-                        if (alpha >= beta) {
-                            gs.undoMove();
-                            break;
-                        }
-                        if (depth == DEPTH) {
-                            nextCapture = capturingMove;
-                        }
+            for(Move[] moveOrCapturingMove : possibleMovesCapturesExtended) {
+                gs.makeMoveExtended(moveOrCapturingMove);
+                score = findMoveMinMaxAlphaBetaImproved(gs, depth - 1, alpha, beta);
+                if (score < minScore) {
+                    minScore = score;
+                    beta = Math.min(beta, minScore);
+                    if (alpha >= beta) {
+                        gs.undoMove();
+                        break;
                     }
-                    gs.undoMove();
-                }
-                return  minScore;
-            }
-            else{
-                for(Move singleMove : possibleMoveExtended) {
-                    gs.makeMoveExtended(singleMove);
-                    score = findMoveMinMaxAlphaBetaImproved(gs, depth - 1, alpha, beta);
-                    if (score < minScore) {
-                        minScore = score;
-                        beta = Math.min(beta, minScore);
-                        if (alpha >= beta) {
-                            gs.undoMove();
-                            break;
-                        }
-                        if (depth == DEPTH) {
-                            nextMove = singleMove;
-                        }
+                    if (depth == DEPTH) {
+                        nextMoveOrCapturingMove = moveOrCapturingMove;
                     }
-                    gs.undoMove();
                 }
-                return  minScore;
+                gs.undoMove();
             }
+            return  minScore;
+
         }
     }
 

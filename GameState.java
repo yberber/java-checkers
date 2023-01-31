@@ -3,10 +3,10 @@ import java.util.LinkedList;
 
 public class GameState {
 
-    LinkedList<Move> validMoves;
-    LinkedList<LinkedList<Move>> validCaptureMoves;
+    LinkedList<Move[]> validMoves;
+    LinkedList<Move[]> validCaptureMoves;
 
-    LinkedList<Move> singleValidMoves;
+    LinkedList<Move[]> singleValidMoves;
     String[][] board;
     boolean whiteToMove;
     LinkedList<Move> moveLog;
@@ -62,12 +62,12 @@ public class GameState {
                 changeTurn();
             }
             else{
-                if(captureIndex >= validCaptureMoves.get(0).size()){
+                if(captureIndex >= validCaptureMoves.get(0).length){
                     changeTurn();
                 }
                 else{
                     for (int index = validCaptureMoves.size()-1; index >= 0; index--){
-                        if (moveLog.getLast() != validCaptureMoves.get(index).get(captureIndex-1))
+                        if (moveLog.getLast() != validCaptureMoves.get(index)[captureIndex-1])
                             validCaptureMoves.remove(index);
                     }
                 }
@@ -75,28 +75,42 @@ public class GameState {
         }
     }
 
-    void makeMoveExtended(Move singleMove){
-        makeMove(singleMove, true);
-        changeTurn();
-    }
+//    void makeMoveExtended(Move singleMove){
+//        makeMove(singleMove, true);
+//        changeTurn();
+//    }
 
-    void makeMoveExtended(LinkedList<Move> multipleMove){
+    void makeMoveExtended(Move[] multipleMove){
         for (Move move: multipleMove) {
             makeMove(move, true);
         }
         changeTurn();
     }
 
-    void makeMoveExtended(Move singleMove, LinkedList<Move> multipleMove){
-        if(singleMove != null){
-            makeMoveExtended(singleMove);
+    void makeMoveExtended(Move[] captures, Move[] moves){
+        if(captures!=null){
+            for (Move move: captures) {
+                makeMove(move, true);
+            }
         }
-        else if(multipleMove != null){
-            makeMoveExtended(multipleMove);
-
+        else{
+            for (Move move: moves) {
+                makeMove(move, true);
+            }
         }
-
+        changeTurn();
     }
+
+//    void makeMoveExtended(Move singleMove, LinkedList<Move> multipleMove){
+//        if(singleMove != null){
+//            makeMoveExtended(singleMove);
+//        }
+//        else if(multipleMove != null){
+//            makeMoveExtended(multipleMove);
+//
+//        }
+//
+//    }
 
 
     void undoMove(){
@@ -125,39 +139,39 @@ public class GameState {
         }
     }
 
-    LinkedList<Move> getValidMovesFromPlayerPerspective(){
-        if (!isCapturing)
-            validCaptureMoves = getAllPossibleCaptures();
+//    LinkedList<Move> getValidMovesFromPlayerPerspective(){
+//        if (!isCapturing)
+//            validCaptureMoves = getAllPossibleCaptures();
+//
+//        singleValidMoves.clear();
+//        if (isCapturing){
+//            for(LinkedList<Move> moveSquence : validCaptureMoves){
+//                singleValidMoves.add((moveSquence.get(captureIndex)));
+//            }
+//            captureIndex++;
+//        }
+//        else{
+//            validMoves = getAllPossibleMoves();
+//            singleValidMoves = validMoves;
+//        }
+//        return singleValidMoves;
+//    }
 
-        singleValidMoves.clear();
-        if (isCapturing){
-            for(LinkedList<Move> moveSquence : validCaptureMoves){
-                singleValidMoves.add((moveSquence.get(captureIndex)));
-            }
-            captureIndex++;
-        }
-        else{
-            validMoves = getAllPossibleMoves();
-            singleValidMoves = validMoves;
-        }
-        return singleValidMoves;
-    }
-
-    LinkedList<Move> getValidMovesFromPlayerPerspectiveForSelectedPiece(int row, int col){
-        LinkedList<Move> validMovesForSelectedPiece = new LinkedList<>();
-        for (Move move : singleValidMoves){
-            if (row == move.startRow && col == move.startCol){
-                validMovesForSelectedPiece.add(move);
-            }
-        }
-        return validMovesForSelectedPiece;
-    }
+//    LinkedList<Move> getValidMovesFromPlayerPerspectiveForSelectedPiece(int row, int col){
+//        LinkedList<Move> validMovesForSelectedPiece = new LinkedList<>();
+//        for (Move move : singleValidMoves){
+//            if (row == move.startRow && col == move.startCol){
+//                validMovesForSelectedPiece.add(move);
+//            }
+//        }
+//        return validMovesForSelectedPiece;
+//    }
 
 
-    LinkedList<Move> getAllPossibleMoves(){
-        LinkedList<Move> moves = new LinkedList<>();
+    LinkedList<Move[]> getAllPossibleMoves(){
+        LinkedList<Move[]> moves = new LinkedList<>();
         for (int rowIndex = 0; rowIndex < board.length; rowIndex++) {
-            for (int colIndex = 0; colIndex < board[rowIndex].length; colIndex++) {
+            for (int colIndex = (rowIndex+1)%2; colIndex < board[rowIndex].length; colIndex+=2) {
                 char turnSign = board[rowIndex][colIndex].charAt(0);
                 if (turnSign == 'w' && whiteToMove || turnSign == 'b' && !whiteToMove) {
                     boolean isPawn = board[rowIndex][colIndex].charAt(1) == 'm';
@@ -169,10 +183,10 @@ public class GameState {
         return moves;
     }
 
-    LinkedList<LinkedList<Move>> getAllPossibleCaptures(){
-        LinkedList<LinkedList<Move>> movesWithCaptures = new LinkedList<>();
+    LinkedList<Move[]> getAllPossibleCaptures(){
+        LinkedList<Move[]> movesWithCaptures = new LinkedList<>();
         for (int rowIndex = 0; rowIndex < board.length; rowIndex++) {
-            for (int colIndex = 0; colIndex < board[rowIndex].length; colIndex++) {
+            for (int colIndex = (rowIndex+1)%2; colIndex < board[rowIndex].length; colIndex+=2) {
                 char turnSign = board[rowIndex][colIndex].charAt(0);
                 if (turnSign == 'w' && whiteToMove || turnSign == 'b' && !whiteToMove) {
                     boolean isPawn = board[rowIndex][colIndex].charAt(1) == 'm';
@@ -185,8 +199,8 @@ public class GameState {
     }
 
     boolean isGameOver(){
-        LinkedList<Move> moves = new LinkedList<>();
-        LinkedList<LinkedList<Move>> movesWithCaptures = new LinkedList<>();
+        LinkedList<Move[]> moves = new LinkedList<>();
+        LinkedList<Move[]> movesWithCaptures = new LinkedList<>();
 
         for(int row = 0; row < board.length; row++){
             for (int col = 0; col < board[row].length; col++){
@@ -204,7 +218,7 @@ public class GameState {
         return true;
     }
 
-    void callMoveFunction(boolean isPawn, int row, int col, LinkedList<Move> moves){
+    void callMoveFunction(boolean isPawn, int row, int col, LinkedList<Move[]> moves){
         if(isPawn){
             getManMoves(row, col, moves);
         }
@@ -213,7 +227,7 @@ public class GameState {
         }
     }
 
-    void callCaptureFunction(boolean isPawn, int row, int col, LinkedList<LinkedList<Move>> movesWithCaptures){
+    void callCaptureFunction(boolean isPawn, int row, int col, LinkedList<Move[]> movesWithCaptures){
         if(isPawn){
             getManCaptures(row, col, movesWithCaptures);
         }
@@ -222,18 +236,18 @@ public class GameState {
         }
     }
 
-    void getManMoves(int row, int col, LinkedList<Move> moves){
+    void getManMoves(int row, int col, LinkedList<Move[]> moves){
         int[][] directions = CheckersEngine.getMoveDirections(board[row][col]);
         for (int[] d : directions){
             int endRow = row + d[0];
             int endCol = col + d[1];
             if (CheckersEngine.isOnBoard(endRow, endCol) && board[endRow][endCol] == "--"){
-                moves.add(new Move(row, col, endRow, endCol, board, whiteToMove));
+                moves.add(new Move[]{new Move(row, col, endRow, endCol, board, whiteToMove)});
             }
         }
     }
 
-    void getKingMoves(int row, int col, LinkedList<Move> moves){
+    void getKingMoves(int row, int col, LinkedList<Move[]> moves){
         int[][] directions = CheckersEngine.getMoveDirections(board[row][col]);
         for (int[] d : directions){
             for (int i = 1; i < 10; i++){
@@ -242,7 +256,7 @@ public class GameState {
                 if (CheckersEngine.isOnBoard(endRow, endCol)){
                     String endPiece = board[endRow][endCol];
                     if(endPiece.equals("--")){
-                        moves.add(new Move(row, col, endRow, endCol, board, whiteToMove));
+                        moves.add(new Move[]{new Move(row, col, endRow, endCol, board, whiteToMove)});
                     }else{
                         break;
                     }
@@ -254,11 +268,11 @@ public class GameState {
 
     }
 
-    void getManCaptures(int row, int col, LinkedList<LinkedList<Move>> movesWithCaptures){
+    void getManCaptures(int row, int col, LinkedList<Move[]> movesWithCaptures){
         char enemyColor = whiteToMove ? 'b' : 'w';
         getManCaptures(row, col, movesWithCaptures, enemyColor);
     }
-    void getManCaptures(int row, int col, LinkedList<LinkedList<Move>> movesWithCaptures, char enemyColor){
+    void getManCaptures(int row, int col, LinkedList<Move[]> movesWithCaptures, char enemyColor){
         int[][] directions = CheckersEngine.getCaptureDirections();
         boolean anyFound = false;
         LinkedList<Move> foundCaptureList = new LinkedList<>();
@@ -283,7 +297,7 @@ public class GameState {
         }
         CheckersEngine.addInMovesWithCaptures(anyFound, foundCaptureList, movesWithCaptures);
     }
-    void getManCaptures(int row, int col, LinkedList<LinkedList<Move>> movesWithCaptures, char enemyColor, LinkedList<Move> foundCaptureList){
+    void getManCaptures(int row, int col, LinkedList<Move[]> movesWithCaptures, char enemyColor, LinkedList<Move> foundCaptureList){
         int[][] directions = CheckersEngine.getCaptureDirections();
         boolean anyFound = false;
         for (int[] d : directions){
@@ -308,11 +322,11 @@ public class GameState {
         CheckersEngine.addInMovesWithCaptures(anyFound, foundCaptureList, movesWithCaptures);
     }
 
-    void getKingCaptures(int row, int col, LinkedList<LinkedList<Move>> movesWithCaptures){
+    void getKingCaptures(int row, int col, LinkedList<Move[]> movesWithCaptures){
         char enemyColor = whiteToMove ? 'b' : 'w';
         getKingCaptures(row, col, movesWithCaptures, enemyColor);
     }
-    void getKingCaptures(int row, int col, LinkedList<LinkedList<Move>> movesWithCaptures, char enemyColor){
+    void getKingCaptures(int row, int col, LinkedList<Move[]> movesWithCaptures, char enemyColor){
         int[][] directions = CheckersEngine.getCaptureDirections();
         boolean anyFound = false;
         LinkedList<Move> foundCaptureList = new LinkedList<>();
@@ -357,7 +371,7 @@ public class GameState {
         CheckersEngine.addInMovesWithCaptures(anyFound, foundCaptureList, movesWithCaptures);
 
     }
-    void getKingCaptures(int row, int col, LinkedList<LinkedList<Move>> movesWithCaptures, char enemyColor, LinkedList<Move> foundCaptureList){
+    void getKingCaptures(int row, int col, LinkedList<Move[]> movesWithCaptures, char enemyColor, LinkedList<Move> foundCaptureList){
 
         int[][] directions = CheckersEngine.getCaptureDirections();
         boolean anyFound = false;
