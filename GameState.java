@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Timer;
+import java.util.stream.Collectors;
 
 public class GameState {
 
@@ -8,7 +10,7 @@ public class GameState {
 
     LinkedList<Move> foundCaptureList = new LinkedList<>();
 
-    LinkedList<Move[]> singleValidMoves;
+    LinkedList<Move> singleValidMoves;
     byte[][] board;
     boolean whiteToMove;
     LinkedList<Move> moveLog;
@@ -41,7 +43,7 @@ public class GameState {
 
         whiteToMove = true;
         moveLog = new LinkedList<>();
-        isCapturing = false;
+//        isCapturing = false;
         captureIndex = 0;
     }
 
@@ -64,12 +66,13 @@ public class GameState {
                 changeTurn();
             }
             else{
-                if(captureIndex >= validCaptureMoves.get(0).length){
+                if(captureIndex+1 >= validCaptureMoves.get(0).length){
+                    isCapturing = false;
                     changeTurn();
                 }
                 else{
                     for (int index = validCaptureMoves.size()-1; index >= 0; index--){
-                        if (moveLog.getLast() != validCaptureMoves.get(index)[captureIndex-1])
+                        if (moveLog.getLast() != validCaptureMoves.get(index)[captureIndex])
                             validCaptureMoves.remove(index);
                     }
                 }
@@ -89,19 +92,17 @@ public class GameState {
         changeTurn();
     }
 
-    void makeMoveExtended(Move[] captures, Move[] moves){
-        if(captures!=null){
-            for (Move move: captures) {
-                makeMove(move, true);
+    void makeMoveWithUserInput(Move singleMove){
+
+        for(Move move : singleValidMoves){
+            if(move.equals(singleMove)){
+                makeMove(move, false);
+                return;
             }
         }
-        else{
-            for (Move move: moves) {
-                makeMove(move, true);
-            }
-        }
-        changeTurn();
+
     }
+
 
 //    void makeMoveExtended(Move singleMove, LinkedList<Move> multipleMove){
 //        if(singleMove != null){
@@ -141,36 +142,55 @@ public class GameState {
         }
     }
 
-//    LinkedList<Move> getValidMovesFromPlayerPerspective(){
+    LinkedList<Move> getValidMovesFromPlayerPerspective(){
 //        if (!isCapturing)
 //            validCaptureMoves = getAllPossibleCaptures();
-//
-//        singleValidMoves.clear();
-//        if (isCapturing){
-//            for(LinkedList<Move> moveSquence : validCaptureMoves){
-//                singleValidMoves.add((moveSquence.get(captureIndex)));
-//            }
-//            captureIndex++;
-//        }
-//        else{
-//            validMoves = getAllPossibleMoves();
-//            singleValidMoves = validMoves;
-//        }
-//        return singleValidMoves;
-//    }
 
-//    LinkedList<Move> getValidMovesFromPlayerPerspectiveForSelectedPiece(int row, int col){
-//        LinkedList<Move> validMovesForSelectedPiece = new LinkedList<>();
-//        for (Move move : singleValidMoves){
-//            if (row == move.startRow && col == move.startCol){
-//                validMovesForSelectedPiece.add(move);
-//            }
-//        }
-//        return validMovesForSelectedPiece;
-//    }
+        singleValidMoves.clear();
+
+        if(isCapturing && captureIndex-1 >= validCaptureMoves.size()){
+            captureIndex+=1;
+            for(Move[] move : validCaptureMoves){
+                singleValidMoves.add(move[captureIndex]);
+            }
+            return singleValidMoves;
+        }
+        captureIndex = 0;
+        isCapturing=false;
+
+        validCaptureMoves = getAllPossibleCaptures();
+
+        if (!validCaptureMoves.isEmpty()){
+            isCapturing = true;
+            captureIndex = 0;
+            for(Move[] move : validCaptureMoves){
+                singleValidMoves.add(move[captureIndex]);
+            }
+        }
+        else{
+            validMoves = getAllPossibleMoves();
+            singleValidMoves = validMoves.stream().map(m -> m[0]).collect(Collectors.toCollection(LinkedList::new));
+        }
+        return singleValidMoves;
+    }
+
+    LinkedList<Move> getValidMovesFromPlayerPerspectiveForSelectedPiece(int row, int col){
+        LinkedList<Move> validMovesForSelectedPiece = new LinkedList<>();
+        for (Move move : singleValidMoves){
+            if (row == move.startRow && col == move.startCol){
+                validMovesForSelectedPiece.add(move);
+            }
+        }
+        return validMovesForSelectedPiece;
+    }
 
 
+//    long getAllPossibleMovesStartTime;
+//    long passedTimeGetAllPossibleMoves = 0;
     LinkedList<Move[]> getAllPossibleMoves(){
+
+//        getAllPossibleMovesStartTime = System.currentTimeMillis();
+
         LinkedList<Move[]> moves = new LinkedList<>();
         for (int rowIndex = 0; rowIndex < board.length; rowIndex++) {
             for (int colIndex = (rowIndex+1)%2; colIndex < board[rowIndex].length; colIndex+=2) {
@@ -182,10 +202,16 @@ public class GameState {
                 }
             }
         }
+//        passedTimeGetAllPossibleMoves += System.currentTimeMillis() - getAllPossibleMovesStartTime;
+
         return moves;
     }
 
+//    long getAllPossibleCapturesStartTime;
+//    long passedTimeGetAllPossibleCaptures = 0;
     LinkedList<Move[]> getAllPossibleCaptures(){
+//        getAllPossibleCapturesStartTime = System.currentTimeMillis();
+
         LinkedList<Move[]> movesWithCaptures = new LinkedList<>();
         for (int rowIndex = 0; rowIndex < board.length; rowIndex++) {
             for (int colIndex = (rowIndex+1)%2; colIndex < board[rowIndex].length; colIndex+=2) {
@@ -196,7 +222,7 @@ public class GameState {
                 }
             }
         }
-
+//        passedTimeGetAllPossibleCaptures += System.currentTimeMillis() - getAllPossibleCapturesStartTime;
         return movesWithCaptures;
     }
 
@@ -208,12 +234,7 @@ public class GameState {
         LinkedList<Move[]> movesWithCaptures = getAllPossibleCaptures();
 
         if (!moves.isEmpty() || !movesWithCaptures.isEmpty()){
-
-
             return false;
-
-
-
         }
         return true;
     }
@@ -281,7 +302,7 @@ public class GameState {
                 byte piece = board[nextRow][nextCol];
                 if(piece<0 && whiteToMove || piece>0 && !whiteToMove){
                     anyFound = true;
-                    isCapturing = true;
+//                    isCapturing = true;
                     Move tmpMove = new Move(row, col, endRow, endCol, board, whiteToMove, piece, nextRow, nextCol);
                     foundCaptureList.add(tmpMove);
                     makeMove(tmpMove, true);
@@ -314,7 +335,7 @@ public class GameState {
                             int endCol = col + d[1] * j;
                             if (CheckersEngine.isOnBoard(endRow, endCol) && board[endRow][endCol]==0){
                                 anyFound = true;
-                                isCapturing = true;
+//                                isCapturing = true;
                                 Move tmpMove = new Move(row, col, endRow, endCol, board, whiteToMove, piece, capturedPieceRow, capturedPieceCol);
                                 foundCaptureList.add(tmpMove);
                                 makeMove(tmpMove, true);
@@ -346,7 +367,7 @@ public class GameState {
         captureIndex = 0;
         validMoves.clear();
         validCaptureMoves.clear();
-        isCapturing = false;
+//        isCapturing = false;
         whiteToMove = !whiteToMove;
 
         if (moveLog.size() > 0){

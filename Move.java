@@ -51,7 +51,10 @@ public class Move {
     @Override
     public String toString() {
 //        String resultString = String.format("(%d, %d) -> (%d, %d), type: %s", startRow, startCol, endRow, endCol, capturedPiece!="--"?"capture":"move" );
-        String resultString = String.format("(%d, %d) -> (%d, %d), x(%s)", startRow, startCol, endRow, endCol, capturedPiece );
+        String resultString = String.format("(%d, %d) -> (%d, %d)", startRow, startCol, endRow, endCol);
+        if(capturedPiece!=0){
+            resultString += String.format(", x(%s)", capturedPiece);
+        }
 
         return resultString;
     }

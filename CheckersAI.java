@@ -1,4 +1,7 @@
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Random;
 
 public class CheckersAI {
 
@@ -12,11 +15,10 @@ public class CheckersAI {
     int counter;
     long currentTime;
     long startTime;
-    int score;
+    float score;
     int moveCounter;
     boolean isWhite;
-
-
+    boolean running = false;
 
     Move[] findBestMoveMinMax(GameState gs, int depth){
         isWhite = gs.whiteToMove;
@@ -26,13 +28,10 @@ public class CheckersAI {
         DEPTH=depth;
         nextMoveOrCapturingMove=null;
 
-
-
-
         currentTime=System.currentTimeMillis();
-
+        running = true;
         findMoveMinMaxAlphaBetaImproved(gs, depth, -255, 255);
-
+        running=false;
         System.out.println("turn: " + (gs.whiteToMove ? "white": "black") + ", counter: " + counter + ", score: " +
                 score + ". used time: " + (System.currentTimeMillis() - currentTime)/1000.0 + ", used total time: " +
                 (System.currentTimeMillis() - this.startTime)/1000.0 + ", total generated move count: " + moveCounter);
@@ -43,28 +42,25 @@ public class CheckersAI {
     }
 
 
-//    Move[] findBestMoveMinMaxAndPerform(GameState gs, int depth){
-//
-//    }
 
-
-        private int findMoveMinMaxAlphaBetaImproved(GameState gs, int depth, int alpha, int beta) {
+        private float findMoveMinMaxAlphaBetaImproved(GameState gs, int depth, float alpha, float beta) {
 
         LinkedList<Move[]> possibleMovesCapturesExtended;
 
         if(depth==0){
             counter++;
+//            return scoreMaterial(gs.board);
+
             possibleMovesCapturesExtended = gs.getAllPossibleCaptures();
             if (possibleMovesCapturesExtended.size() > 0){
                 depth++;
             }
             else{
-                if(isWhite){
-                    return scoreMaterial(gs.board);
-                }
-                else{
-                    return scoreMaterial(gs.board);
-                }
+                return scoreMaterial(gs.board);
+//                if(isWhite)
+//                    return scoreMaterialHeuristic(gs.board);
+//                else
+//                    return scoreMaterialHeuristic(gs.board);
             }
         }
         else{
@@ -79,15 +75,16 @@ public class CheckersAI {
         }
 
         if (depth==DEPTH){
-            if(possibleMovesCapturesExtended.size() == 1){
-                counter++;
-                nextMoveOrCapturingMove=possibleMovesCapturesExtended.get(0);
-                return 0;
-            }
+//            if(possibleMovesCapturesExtended.size() == 1){
+//                counter++;
+//                nextMoveOrCapturingMove=possibleMovesCapturesExtended.get(0);
+//                return;
+//            }
+//            Collections.shuffle(possibleMovesCapturesExtended);
         }
 
         if (gs.whiteToMove) {
-            int maxScore = -255;
+            float maxScore = -255;
             for (Move[] moveOrCapturingMove : possibleMovesCapturesExtended) {
                 gs.makeMoveExtended(moveOrCapturingMove);
                 score = findMoveMinMaxAlphaBetaImproved(gs, depth - 1, alpha, beta);
@@ -109,7 +106,7 @@ public class CheckersAI {
 
 
         else{
-            int minScore = 255;
+            float minScore = 255;
             for(Move[] moveOrCapturingMove : possibleMovesCapturesExtended) {
                 gs.makeMoveExtended(moveOrCapturingMove);
                 score = findMoveMinMaxAlphaBetaImproved(gs, depth - 1, alpha, beta);
@@ -149,6 +146,25 @@ public class CheckersAI {
 //                else if (square.equals("bk")){
 //                    score-=3;
 //                }
+            }
+        }
+        return score;
+    }
+
+    float scoreMaterialHeuristic(byte[][] board){
+        float score = 0;
+        byte scoreOfPiece;
+        for (int row = 0; row < board.length; row++){
+            for(int col = 0; col < board[row].length ; col++){
+                scoreOfPiece = board[row][col];
+                if (scoreOfPiece==-1){
+                    score -= row / 16.0f ;
+                }
+                else if (scoreOfPiece==1){
+                    score += (9-row)/16.0f;
+                }
+
+                score += scoreOfPiece;
             }
         }
         return score;

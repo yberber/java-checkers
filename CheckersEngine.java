@@ -17,6 +17,25 @@ public class CheckersEngine {
         }
     }
 
+    public static String getPieceShortName(byte pieceId){
+        switch(pieceId){
+            case 0:
+                return "--";
+            case 1:
+                return "wm";
+            case -1:
+                return "bm";
+            case 3:
+                return "wk";
+            case -3:
+                return "bk";
+            default:
+                return "?";
+        }
+    }
+
+
+
     public static int[][] getMoveDirections(byte pieceSign){
         if (Math.abs(pieceSign) == 1){
             if (pieceSign>0){
