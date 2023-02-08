@@ -107,9 +107,13 @@ this.ai = ai;
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if(gs.whiteToMove || ai.running){
+//        if(true){
+//            return;
+//        }
+        if(!Main.isRunning || (gs.whiteToMove && !Main.isWhiteHuman || !gs.whiteToMove && !Main.isBlackHuman)){
             return;
         }
+        Main.isRunning = true;
         JLabel label = (JLabel) e.getSource();
         int labelNameAsInt = Integer.parseInt(label.getName());
         System.out.println(label.getName());
@@ -123,6 +127,8 @@ this.ai = ai;
                     selection = labelNameAsInt;
                     higlightAfterPieceSelection(row, col);
 //                    SwingUtilities.updateComponentTreeUI(this);
+                    Main.isRunning = false;
+
                     return;
                 }
             }
@@ -141,6 +147,7 @@ this.ai = ai;
                         removeHighlight();
                         higlightAfterPieceSelection(row, col);
 //                        SwingUtilities.updateComponentTreeUI(this);
+                        Main.isRunning = false;
 
                         return;
                     }
@@ -151,6 +158,7 @@ this.ai = ai;
                         playMove(row, col);
                         selection = -1;
                         isRunning = false;
+                        Main.isRunning = false;
 
                         return;
                     }
@@ -160,6 +168,8 @@ this.ai = ai;
                 selectionCounter = 0;
                 selection = -1;
                 removeHighlight();
+                Main.isRunning = false;
+
 //                SwingUtilities.updateComponentTreeUI(this);
 
 

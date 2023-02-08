@@ -5,6 +5,11 @@ import java.util.LinkedList;
 import java.util.Scanner;
 
 public class Main {
+
+    public final static boolean isWhiteHuman = false;
+    public final static boolean isBlackHuman = false;
+
+    public static boolean isRunning = false;
     String name;
     int age;
 
@@ -34,39 +39,30 @@ public class Main {
 
         frame.UpdateFrame();
 
-        while(true) {
+        while(!gs.isGameOver()) {
 
 
 
+//            System.out.println(frame.isRunning);
 
-//            if (gs.whiteToMove && !frame.isRunning) {
+            System.out.print("");
 
-                ai.findBestMoveMinMax(gs, 7);
+            if (!isRunning && (gs.whiteToMove && !isWhiteHuman || !gs.whiteToMove && !isBlackHuman)) {
+                isRunning = true;
+                ai.findBestMoveMinMax(gs, 9);
                 Arrays.stream(ai.nextMoveOrCapturingMove).toList().forEach(m->System.out.print(m + "  "));
                 System.out.println("");
-                gs.makeMoveExtended(ai.nextMoveOrCapturingMove);
+                gs.makeMoveExtended(ai.nextMoveOrCapturingMove, true);
                 frame.UpdateFrame();
-
-//
-//            }
+                isRunning = false;
+            }
         }
-//            else{
-//                System.out.println("Valid moves: " + gs.getValidMovesFromPlayerPerspective());
-//                System.out.print("What is your input: ");
-//                int input = Integer.parseInt(scanner.nextLine());
-//                gs.makeMoveWithUserInput(new Move(input/1000, (input%1000)/100, (input%100)/10, (input%10), gs.board, gs.whiteToMove));
-//            }
-//
-//            printGameState(gs.board);
-//
-//            if(gs.isGameOver()){
-//                break;
-//            }
-//
-//        }
 
-//        System.out.println("Passed time to find moves: " + gs.passedTimeGetAllPossibleMoves);
-//        System.out.println("Passed time to find captures: " + gs.passedTimeGetAllPossibleCaptures);
+//        System.out.println((gs.passedTimeGetAllPossibleMoves)/1000);
+//        System.out.println((gs.passedTimeGetAllPossibleCaptures)/1000);
+//        System.out.println((gs.passedTimeManCaptures)/1000);
+//        System.out.println((gs.passedTimeKingCaptures)/1000);
+
 
 
     }

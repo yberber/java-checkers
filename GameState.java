@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.stream.Collectors;
@@ -17,11 +18,17 @@ public class GameState {
     boolean isCapturing;
     int captureIndex;
 
+    LinkedList<Move[]> possibleCapturesOfBlack;
+    LinkedList<Move[]> possibleCapturesOfWhite;
+
 
     public GameState(){
         validMoves = new LinkedList<>();
         validCaptureMoves = new LinkedList<>();
         singleValidMoves = new LinkedList<>();
+
+        possibleCapturesOfBlack = new LinkedList<>();
+        possibleCapturesOfWhite = new LinkedList<>();
 
 
         board = new byte[][]{
@@ -43,7 +50,6 @@ public class GameState {
 
         whiteToMove = true;
         moveLog = new LinkedList<>();
-//        isCapturing = false;
         captureIndex = 0;
     }
 
@@ -85,11 +91,117 @@ public class GameState {
 //        changeTurn();
 //    }
 
+    static int count = 0;
     void makeMoveExtended(Move[] multipleMove){
         for (Move move: multipleMove) {
             makeMove(move, true);
         }
+//        adjustCaptureLists();
         changeTurn();
+    }
+
+    void makeMoveExtended(Move[] multipleMove, boolean asd){
+        for (Move move: multipleMove) {
+            makeMove(move, true);
+        }
+//        adjustCaptureLists();
+        changeTurn();
+    }
+
+    void adjustCaptureLists(){
+        String piece = this.whiteToMove ? "white" : "black";
+        if(moveLog.size() >= 2){
+            if(moveLog.get(moveLog.size() - 2).isWhite == whiteToMove){
+
+                if(whiteToMove){
+                    System.out.println(piece + " captured 2 or more pieces");
+                }else{
+                    System.out.println(piece + " captured 2 or more pieces");
+                }
+            }else if(moveLog.getLast().capturedPiece != 0){
+                if(whiteToMove){
+                    System.out.println(piece + " captured 1 piece");
+                }else{
+                    System.out.println(piece + " captured 1 piece");
+                }
+            }
+            else{
+                System.out.println(piece + " made a simple move");
+
+//                calculateAndAssignPossibleCapturesAfterSingleMove();
+            }
+
+            printCaptureLists();
+
+        }
+    }
+
+
+    void printCaptureLists(){
+        System.out.println("********* WHITE CAPTURES *********");
+        possibleCapturesOfWhite.forEach(moveArray ->
+                {
+                    Arrays.stream(moveArray).toList().forEach(m->System.out.print(m + "  "));
+                    System.out.println("");
+                }
+        );
+        System.out.println("********* BLACK CAPTURES *********");
+        possibleCapturesOfBlack.forEach(moveArray ->
+                {
+                    Arrays.stream(moveArray).toList().forEach(m->System.out.print(m + "  "));
+                    System.out.println("");
+                }
+        );
+        System.out.println("************************************");
+
+    }
+    void calculateAndAssignPossibleCapturesAfterSingleMove(){
+        Move move = this.moveLog.getLast();
+        System.out.println(move.getCheckersRowColNotation());
+        if(whiteToMove){
+            possibleCapturesOfWhite = getAllPossibleCaptures();
+        }else{
+            possibleCapturesOfBlack = getAllPossibleCaptures();
+        }
+    }
+
+
+    boolean isTherePossibleCapturesOnGivenPosition(LinkedList<Move[]> possibleCaptureList, boolean isWhiteAttacker, byte row, byte col){
+
+        int[][] directions = CheckersEngine.getCaptureDirections();
+        boolean isWhiteLastPlayed = !isWhiteAttacker;
+
+        for (int[] d : directions){
+            int endRow = row + d[0];
+            int endCol = col + d[1];
+
+            if(CheckersEngine.isOnBoard(endRow, endCol)) {
+                byte piece = board[endRow][endCol];
+                if (piece > 0 && isWhiteLastPlayed || piece < 0 && !isWhiteLastPlayed) {
+                    for (int j = 2; j < 8; j++) {
+                        int attackerRow = row + d[0] * j;
+                        int attackerCol = col + d[1] * j;
+                        if (CheckersEngine.isOnBoard(attackerRow, attackerCol)) {
+                            byte attackerPiece = board[endRow][endCol];
+                            if (attackerPiece > 0 && isWhiteAttacker || attackerPiece < 0 && !isWhiteAttacker) {
+//                                Move move = new Move();
+//                                possibleCaptureList.add()
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    break;
+                }
+
+
+            }
+            else{
+                break;
+            }
+        }
+        return false;
     }
 
     void makeMoveWithUserInput(Move singleMove){
@@ -290,7 +402,10 @@ public class GameState {
 
     }
 
+//    long getManCapturesStartTime;
+//    long passedTimeManCaptures = 0;
     void getManCaptures(int row, int col, LinkedList<Move[]> movesWithCaptures){
+//        getManCapturesStartTime = System.currentTimeMillis();
         int[][] directions = CheckersEngine.getCaptureDirections();
         boolean anyFound = false;
         for (int[] d : directions){
@@ -302,7 +417,6 @@ public class GameState {
                 byte piece = board[nextRow][nextCol];
                 if(piece<0 && whiteToMove || piece>0 && !whiteToMove){
                     anyFound = true;
-//                    isCapturing = true;
                     Move tmpMove = new Move(row, col, endRow, endCol, board, whiteToMove, piece, nextRow, nextCol);
                     foundCaptureList.add(tmpMove);
                     makeMove(tmpMove, true);
@@ -313,11 +427,15 @@ public class GameState {
             }
         }
         CheckersEngine.addInMovesWithCaptures(anyFound, foundCaptureList, movesWithCaptures);
+//        passedTimeManCaptures += System.currentTimeMillis() - getManCapturesStartTime;
     }
 
 
+//    long getKingCapturesStartTime;
+//    long passedTimeKingCaptures = 0;
     void getKingCaptures(int row, int col, LinkedList<Move[]> movesWithCaptures){
 
+//        getKingCapturesStartTime = System.currentTimeMillis();
         int[][] directions = CheckersEngine.getCaptureDirections();
         boolean anyFound = false;
 
@@ -335,7 +453,6 @@ public class GameState {
                             int endCol = col + d[1] * j;
                             if (CheckersEngine.isOnBoard(endRow, endCol) && board[endRow][endCol]==0){
                                 anyFound = true;
-//                                isCapturing = true;
                                 Move tmpMove = new Move(row, col, endRow, endCol, board, whiteToMove, piece, capturedPieceRow, capturedPieceCol);
                                 foundCaptureList.add(tmpMove);
                                 makeMove(tmpMove, true);
@@ -360,6 +477,7 @@ public class GameState {
         }
 
         CheckersEngine.addInMovesWithCaptures(anyFound, foundCaptureList, movesWithCaptures);
+//        passedTimeKingCaptures += System.currentTimeMillis() - getKingCapturesStartTime;
     }
 
 

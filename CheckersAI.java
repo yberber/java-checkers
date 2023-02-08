@@ -48,6 +48,10 @@ public class CheckersAI {
         LinkedList<Move[]> possibleMovesCapturesExtended;
 
         if(depth==0){
+//                        counter++;
+//
+//            return scoreMaterial(gs.board);
+
             counter++;
 //            return scoreMaterial(gs.board);
 
@@ -74,14 +78,14 @@ public class CheckersAI {
             }
         }
 
-        if (depth==DEPTH){
+//        if (depth==DEPTH){
 //            if(possibleMovesCapturesExtended.size() == 1){
 //                counter++;
 //                nextMoveOrCapturingMove=possibleMovesCapturesExtended.get(0);
 //                return;
 //            }
 //            Collections.shuffle(possibleMovesCapturesExtended);
-        }
+//        }
 
         if (gs.whiteToMove) {
             float maxScore = -255;

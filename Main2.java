@@ -34,10 +34,13 @@ public class Main2 {
     }
 
     public static void main(String args[]){
-        long startTime = System.currentTimeMillis();
-//        prime_finder_in_java(500000);
-        Arrays.stream(prime_finder_in_java(250000)).forEach(s->System.out.print(s + "  "));
-//        System.out.println( prime_finder_in_java(10));
-        System.out.println("\n" +(System.currentTimeMillis()-startTime)/1 );
+//        long startTime = System.currentTimeMillis();
+////        prime_finder_in_java(500000);
+//        Arrays.stream(prime_finder_in_java(250000)).forEach(s->System.out.print(s + "  "));
+////        System.out.println( prime_finder_in_java(10));
+//        System.out.println("\n" +(System.currentTimeMillis()-startTime)/1 );
+
+        System.out.println(Piece.BLACK_KING.value);
+        System.out.println(Piece.BLACK_KING == Piece.WHITE_KING);
     }
 }

@@ -41,7 +41,7 @@ public class Move {
 
     public String getCheckersRowColNotation(){
         String sign = this.capturedPiece != 0 ? "x" : "-" ;
-        return startRow + startCol + sign + endRow + endCol;
+        return String.valueOf(startRow) + startCol + sign + endRow + endCol;
     }
 
     public String getNotationWhileCapturing(){
