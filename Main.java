@@ -43,13 +43,12 @@ public class Main {
 
 
 
-//            System.out.println(frame.isRunning);
 
             System.out.print("");
 
             if (!isRunning && (gs.whiteToMove && !isWhiteHuman || !gs.whiteToMove && !isBlackHuman)) {
                 isRunning = true;
-                ai.findBestMoveMinMax(gs, 9);
+                ai.findBestMoveMinMax(gs, 7);
                 Arrays.stream(ai.nextMoveOrCapturingMove).toList().forEach(m->System.out.print(m + "  "));
                 System.out.println("");
                 gs.makeMoveExtended(ai.nextMoveOrCapturingMove, true);
@@ -58,10 +57,6 @@ public class Main {
             }
         }
 
-//        System.out.println((gs.passedTimeGetAllPossibleMoves)/1000);
-//        System.out.println((gs.passedTimeGetAllPossibleCaptures)/1000);
-//        System.out.println((gs.passedTimeManCaptures)/1000);
-//        System.out.println((gs.passedTimeKingCaptures)/1000);
 
 
 

@@ -17,7 +17,7 @@ public class CheckersEngine {
         }
     }
 
-    public static String getPieceShortName(byte pieceId){
+    public static String getPieceShortName(int pieceId){
         switch(pieceId){
             case 0:
                 return "--";
@@ -36,7 +36,7 @@ public class CheckersEngine {
 
 
 
-    public static int[][] getMoveDirections(byte pieceSign){
+    public static int[][] getMoveDirections(int pieceSign){
         if (Math.abs(pieceSign) == 1){
             if (pieceSign>0){
                 return new int [][]{{-1, -1},{-1, 1}};

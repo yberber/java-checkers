@@ -133,10 +133,10 @@ public class CheckersAI {
     }
 
 
-    int scoreMaterial(byte[][] board){
+    int scoreMaterial(int[][] board){
         int score = 0;
-        for (byte[] row : board){
-            for(byte square : row){
+        for (int[] row : board){
+            for(int square : row){
                 score += square;
 //                if (square.equals("wm")){
 //                    score+=1;
@@ -155,9 +155,9 @@ public class CheckersAI {
         return score;
     }
 
-    float scoreMaterialHeuristic(byte[][] board){
+    float scoreMaterialHeuristic(int[][] board){
         float score = 0;
-        byte scoreOfPiece;
+        int scoreOfPiece;
         for (int row = 0; row < board.length; row++){
             for(int col = 0; col < board[row].length ; col++){
                 scoreOfPiece = board[row][col];

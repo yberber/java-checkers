@@ -12,7 +12,7 @@ public class GameState {
     LinkedList<Move> foundCaptureList = new LinkedList<>();
 
     LinkedList<Move> singleValidMoves;
-    byte[][] board;
+    int[][] board;
     boolean whiteToMove;
     LinkedList<Move> moveLog;
     boolean isCapturing;
@@ -31,7 +31,7 @@ public class GameState {
         possibleCapturesOfWhite = new LinkedList<>();
 
 
-        board = new byte[][]{
+        board = new int[][]{
                 {0, -1, 0, -1, 0, -1, 0, -1, 0, -1},
                 {-1, 0, -1, 0, -1, 0, -1, 0, -1, 0},
                 {0, -1, 0, -1, 0, -1, 0, -1, 0, -1},
@@ -136,6 +136,9 @@ public class GameState {
         }
     }
 
+    LinkedList<Move[]> getValidMoves(){
+        return null;
+    }
 
     void printCaptureLists(){
         System.out.println("********* WHITE CAPTURES *********");
@@ -166,7 +169,7 @@ public class GameState {
     }
 
 
-    boolean isTherePossibleCapturesOnGivenPosition(LinkedList<Move[]> possibleCaptureList, boolean isWhiteAttacker, byte row, byte col){
+    boolean isTherePossibleCapturesOnGivenPosition(LinkedList<Move[]> possibleCaptureList, boolean isWhiteAttacker, int row, int col){
 
         int[][] directions = CheckersEngine.getCaptureDirections();
         boolean isWhiteLastPlayed = !isWhiteAttacker;
@@ -176,13 +179,13 @@ public class GameState {
             int endCol = col + d[1];
 
             if(CheckersEngine.isOnBoard(endRow, endCol)) {
-                byte piece = board[endRow][endCol];
+                int piece = board[endRow][endCol];
                 if (piece > 0 && isWhiteLastPlayed || piece < 0 && !isWhiteLastPlayed) {
                     for (int j = 2; j < 8; j++) {
                         int attackerRow = row + d[0] * j;
                         int attackerCol = col + d[1] * j;
                         if (CheckersEngine.isOnBoard(attackerRow, attackerCol)) {
-                            byte attackerPiece = board[endRow][endCol];
+                            int attackerPiece = board[endRow][endCol];
                             if (attackerPiece > 0 && isWhiteAttacker || attackerPiece < 0 && !isWhiteAttacker) {
 //                                Move move = new Move();
 //                                possibleCaptureList.add()
@@ -306,7 +309,7 @@ public class GameState {
         LinkedList<Move[]> moves = new LinkedList<>();
         for (int rowIndex = 0; rowIndex < board.length; rowIndex++) {
             for (int colIndex = (rowIndex+1)%2; colIndex < board[rowIndex].length; colIndex+=2) {
-                byte piece = board[rowIndex][colIndex];
+                int piece = board[rowIndex][colIndex];
                 if (piece > 0 && whiteToMove || piece < 0 && !whiteToMove) {
                     boolean isPawn = Math.abs(board[rowIndex][colIndex]) == 1;
                     callMoveFunction(isPawn, rowIndex, colIndex, moves);
@@ -327,7 +330,7 @@ public class GameState {
         LinkedList<Move[]> movesWithCaptures = new LinkedList<>();
         for (int rowIndex = 0; rowIndex < board.length; rowIndex++) {
             for (int colIndex = (rowIndex+1)%2; colIndex < board[rowIndex].length; colIndex+=2) {
-                byte piece = board[rowIndex][colIndex];
+                int piece = board[rowIndex][colIndex];
                 if (piece > 0 && whiteToMove || piece < 0 && !whiteToMove) {
                     boolean isPawn = Math.abs(board[rowIndex][colIndex]) == 1;
                     callCaptureFunction(isPawn, rowIndex, colIndex, movesWithCaptures);
@@ -388,7 +391,7 @@ public class GameState {
                 int endRow = row + d[0] * i;
                 int endCol = col + d[1] * i;
                 if (CheckersEngine.isOnBoard(endRow, endCol)){
-                    byte endPiece = board[endRow][endCol];
+                    int endPiece = board[endRow][endCol];
                     if(endPiece==0){
                         moves.add(new Move[]{new Move(row, col, endRow, endCol, board, whiteToMove)});
                     }else{
@@ -414,7 +417,7 @@ public class GameState {
             if(CheckersEngine.isOnBoard(endRow, endCol) && board[endRow][endCol] == 0){
                 int nextRow = row + d[0];
                 int nextCol = col + d[1];
-                byte piece = board[nextRow][nextCol];
+                int piece = board[nextRow][nextCol];
                 if(piece<0 && whiteToMove || piece>0 && !whiteToMove){
                     anyFound = true;
                     Move tmpMove = new Move(row, col, endRow, endCol, board, whiteToMove, piece, nextRow, nextCol);
@@ -444,7 +447,7 @@ public class GameState {
                 int capturedPieceRow = row + d[0] * i;
                 int capturedPieceCol = col + d[1] * i;
                 if (CheckersEngine.isOnBoard(capturedPieceRow, capturedPieceCol)){
-                    byte piece = board[capturedPieceRow][capturedPieceCol];
+                    int piece = board[capturedPieceRow][capturedPieceCol];
                     if (piece==0)
                         continue;
                     else if(piece < 0 && whiteToMove || piece > 0 && !whiteToMove){
@@ -491,7 +494,7 @@ public class GameState {
         if (moveLog.size() > 0){
             Move lastMove = moveLog.getLast();
             if (lastMove.isPawnPromotion){
-                board[lastMove.endRow][lastMove.endCol] = (byte) (lastMove.pieceMoved > 0 ? 3 : -3);
+                board[lastMove.endRow][lastMove.endCol] = (int) (lastMove.pieceMoved > 0 ? 3 : -3);
             }
         }
 

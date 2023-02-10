@@ -9,8 +9,8 @@ public class Move {
     int startCol;
     int endRow;
     int endCol;
-    byte pieceMoved;
-    byte capturedPiece;
+    int pieceMoved;
+    int capturedPiece;
     int capturedPieceRow;
     int capturedPieceCol;
     boolean isPawnPromotion;
@@ -18,11 +18,11 @@ public class Move {
     int moveId;
 
 
-    public Move(int startRow, int startCol, int endRow, int endCol, byte[][] board, boolean isWhite){
-        this(startRow, startCol, endRow, endCol, board, isWhite, (byte) 0, -1, -1);
+    public Move(int startRow, int startCol, int endRow, int endCol, int[][] board, boolean isWhite){
+        this(startRow, startCol, endRow, endCol, board, isWhite, (int) 0, -1, -1);
     }
 
-    public Move(int startRow, int startCol, int endRow, int endCol, byte[][] board, boolean isWhite, byte capturedPiece, int capturedPieceRow, int capturedPieceCol){
+    public Move(int startRow, int startCol, int endRow, int endCol, int[][] board, boolean isWhite, int capturedPiece, int capturedPieceRow, int capturedPieceCol){
         this.startRow = startRow;
         this.startCol = startCol;
         this.endRow = endRow;
